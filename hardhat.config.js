@@ -1,5 +1,6 @@
 require('@nomiclabs/hardhat-waffle')
 require('@nomiclabs/hardhat-web3')
+require('@nomiclabs/hardhat-etherscan')
 require('hardhat-spdx-license-identifier')
 
 const PRIVATE_KEY = `0x${process.env.PRIVATE_KEY || 'ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'}`
@@ -19,6 +20,9 @@ module.exports = {
     },
     mocha: {
         timeout: 0
+    },
+    etherscan: {
+        apiKey: `${process.env.POLYGONSCAN || ''}`
     },
     spdxLicenseIdentifier: {
         runOnCompile: true
