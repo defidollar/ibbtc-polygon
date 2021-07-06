@@ -1393,6 +1393,12 @@ contract ibBTC is
 {
     bytes32 public constant DEPOSITOR_ROLE = keccak256("DEPOSITOR_ROLE");
 
+    address public fxChild;
+    address public fxRootTunnel;
+    uint public pricePerShare;
+
+    event PricePerShareUpdated(uint indexed pricePerShare);
+
     constructor() public ERC20("", "") {}
 
     /**
@@ -1457,5 +1463,18 @@ contract ibBTC is
      */
     function withdraw(uint256 amount) external {
         _burn(_msgSender(), amount);
+    }
+
+    function processMessageFromRoot(uint256 /* stateId */, address rootMessageSender, bytes calldata data) external {
+        require(msg.sender == fxChild, "INVALID_SENDER");
+        require(rootMessageSender == fxRootTunnel, "INVALID_SENDER_FROM_ROOT");
+        pricePerShare = abi.decode(data, (uint));
+        emit PricePerShareUpdated(pricePerShare);
+    }
+
+    function setFxParams(address _fxChild, address _fxRootTunnel) external only(DEFAULT_ADMIN_ROLE) {
+        require(_fxChild != address(0) && _fxRootTunnel != address(0), "NULL_ADDRESS");
+        fxChild = _fxChild;
+        fxRootTunnel = _fxRootTunnel;
     }
 }
