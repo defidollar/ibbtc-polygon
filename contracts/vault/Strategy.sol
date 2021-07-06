@@ -1582,17 +1582,18 @@ contract StrategySushiLpOptimizer is BaseStrategy {
         HarvestData memory harvestData;
 
         uint256 _beforeSushi = IERC20Upgradeable(sushi).balanceOf(address(this));
-        uint256 _beforeLp = IERC20Upgradeable(want).balanceOf(address(this));
 
         // == Harvest sushi rewards from Chef ==
 
-        // Note: Deposit of zero harvests rewards balance, but go ahead and deposit idle want if we have it
-        ISushiChef(chef).deposit(pid, _beforeLp);
+        // Note that deposit doesn't harvest sushi only harvest() and withdrawAndHarvest() do
+        ISushiChef(chef).harvest(pid, address(this));
 
         uint256 _sushi = IERC20Upgradeable(sushi).balanceOf(address(this));
+        uint256 _wmatic = IERC20Upgradeable(wmatic).balanceOf(address(this));
 
         //all sushi is profit
         harvestData.totalSushi = _sushi;
+        harvestData.totalWmatic = _wmatic;
         //harvested is the sushi gain since last tend
         harvestData.sushiHarvested = _sushi.sub(_beforeSushi);
 
@@ -1607,6 +1608,7 @@ contract StrategySushiLpOptimizer is BaseStrategy {
         emit HarvestState(
             harvestData.sushiHarvested,
             harvestData.totalSushi,
+            harvestData.totalWmatic,
             harvestData.toStrategist,
             harvestData.toGovernance,
             harvestData.toBadgerTree,
